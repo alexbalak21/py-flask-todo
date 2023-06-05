@@ -1,5 +1,7 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+import uuid
+from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'SuperSecret'
@@ -39,7 +41,16 @@ def create():
 
 @app.get('/user')
 def get_all_users():
-    return ''
+    users = User.query.all()
+    output = []
+    for user in users:
+        user_data = {}
+        user_data['public_id'] = user.public_id
+        user_data['name'] = user.name
+        user_data['password'] = user.password
+        user_data['admin'] = user.admin
+        output.append(user_data)
+    return jsonify({'users': output})
 
 
 @app.get('/user/<user_id>')
@@ -49,7 +60,13 @@ def get_one_user():
 
 @app.post('/user')
 def create_user():
-    return ''
+    data = request.get_json()
+    hash_password = generate_password_hash(data['password'])
+    new_user = User(public_id=str(uuid.uuid4()),
+                    name=data['name'], password=hash_password, admin=False)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'message': 'new user crated'})
 
 
 @app.put('/user/<user_id>')
