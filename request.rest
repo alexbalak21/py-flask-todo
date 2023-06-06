@@ -1,3 +1,7 @@
+###HOME
+GET http://127.0.0.1:5000/
+
+###POST USER
 POST http://127.0.0.1:5000/user
 content-type: application/json
 
@@ -6,8 +10,19 @@ content-type: application/json
   "password": "password123"
 }
 
+### LOGIN
+POST http://127.0.0.1:5000/login
+content-type: application/json
+
+{
+  "name": "LaraCroft",
+  "password": "password123"
+}
+
+
 ### GET ALL USERS
 GET http://127.0.0.1:5000/user
+x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNfaWQiOiIyYjc3MTQwMS0xNjIyLTQ1YWYtOGY0ZC05M2IxNGEwMjVjNzUiLCJleHAiOjE2ODYwODczMDN9.MxX5d5iofHNZoN33_ViHWwgqxjy4BH4ZZkSbR2T-tdI
 
 ###
 
@@ -17,4 +32,4 @@ GET http://127.0.0.1:5000/user/2b771401-1622-45af-8f4d-93b14a025c75
 PUT  http://127.0.0.1:5000/user/2b771401-1622-45af-8f4d-93b14a025c75
 
 ### DELETE USER
-DELETE  http://127.0.0.1:5000/user/24e01b3d-6327-4116-91f9-3530c0ab98c1
+DELETE  http://127.0.0.1:5000/user/ee1252a4-3d2b-4027-b914-53778896c580

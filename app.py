@@ -2,12 +2,36 @@ from flask import Flask, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
+import datetime
+from functools import wraps
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'SuperSecret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.sqlite'
 
 db = SQLAlchemy(app)
+
+token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNfaWQiOiIyYjc3MTQwMS0xNjIyLTQ1YWYtOGY0ZC05M2IxNGEwMjVjNzUiLCJleHAiOjE2ODYwODc4MDN9.7GOQVJJRNVdXqaHxvhalxr6iYk3QykQKuyg1hSRuEZ4"
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:
+            return message('Token is missing'), 401
+        try:
+            data = jwt.decode(
+                token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = User.query.filter_by(
+                public_id=data['public_id']).first()
+        except:
+            return message('token is invalid'), 401
+        return f(current_user, *args, **kwargs)
+    return decorated
 
 
 class User(db.Model):
@@ -37,7 +61,7 @@ def message(content: str) -> str:
 
 @app.get('/')
 def home():
-    return 'Home'
+    return 'Home', 201
 
 
 @app.get('/create')
@@ -50,7 +74,8 @@ def create():
 
 
 @app.get('/user')
-def get_all_users():
+@token_required
+def get_all_users(current_user):
     users = User.query.all()
     output = []
     for user in users:
@@ -74,7 +99,7 @@ def create_user():
                     name=data['name'], password=hash_password, admin=False)
     db.session.add(new_user)
     db.session.commit()
-    return message('new user crated')
+    return message('new user crated'), 201
 
 
 @app.put('/user/<public_id>')
@@ -84,7 +109,7 @@ def promote_user(public_id):
         return message('No user found.')
     user.admin = True
     db.session.commit()
-    return message('User has been promoted.')
+    return message('User has been promoted.'), 202
 
 
 @app.delete('/user/<public_id>')
@@ -94,9 +119,19 @@ def delete_user(public_id):
         return message('No user found.')
     db.session.delete(user)
     db.session.commit()
-    return message('The user has been deleted')
+    return message('The user has been deleted'), 202
 
 
 @app.post('/login')
 def login():
-    auth = request.
+    data = request.get_json()
+    if not data['name'] or not data['password']:
+        return message('Fields missing in request')
+    user = User.query.filter_by(name=data['name']).first()
+    if not user:
+        return message('User not found')
+    if check_password_hash(user.password, data['password']):
+        token = jwt.encode({'public_id': user.public_id, 'exp': datetime.datetime.utcnow(
+        ) + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm="HS256")
+        return jsonify({'token': token}), 202
+    return message('Password incorrect'), 401
