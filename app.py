@@ -1,11 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'SuperSecret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.sqlite'
 
 db = SQLAlchemy(app)
 
@@ -17,12 +17,22 @@ class User(db.Model):
     password = db.Column(db.String(80))
     admin = db.Column(db.Boolean)
 
+    def to_dict(self) -> dict:
+        return {'id': self.id, 'public_id': self.public_id, 'name': self.name, 'password': self.password, 'admin': self.admin}
+
 
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(255))
     complete = db.Column(db.Boolean)
     user_id = db.Column(db.Integer)
+
+    def to_dict(self) -> dict:
+        return {'id': self.id, 'text': self.text, 'complete': self.complete, 'user_id': self.user_id}
+
+
+def message(content: str) -> str:
+    return jsonify({'message': content})
 
 
 @app.get('/')
@@ -44,18 +54,16 @@ def get_all_users():
     users = User.query.all()
     output = []
     for user in users:
-        user_data = {}
-        user_data['public_id'] = user.public_id
-        user_data['name'] = user.name
-        user_data['password'] = user.password
-        user_data['admin'] = user.admin
-        output.append(user_data)
+        output.append(user.to_dict())
     return jsonify({'users': output})
 
 
-@app.get('/user/<user_id>')
-def get_one_user():
-    return ''
+@app.get('/user/<public_id>')
+def get_one_user(public_id):
+    user = User.query.filter_by(public_id=public_id).first()
+    if not user:
+        return message('No user found.')
+    return jsonify(user.to_dict())
 
 
 @app.post('/user')
@@ -66,14 +74,29 @@ def create_user():
                     name=data['name'], password=hash_password, admin=False)
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({'message': 'new user crated'})
+    return message('new user crated')
 
 
-@app.put('/user/<user_id>')
-def promote_user():
-    return ''
+@app.put('/user/<public_id>')
+def promote_user(public_id):
+    user = User.query.filter_by(public_id=public_id).first()
+    if not user:
+        return message('No user found.')
+    user.admin = True
+    db.session.commit()
+    return message('User has been promoted.')
 
 
-@app.delete('/user/<user_id>')
-def delete_user():
-    return ''
+@app.delete('/user/<public_id>')
+def delete_user(public_id):
+    user = User.query.filter_by(public_id=public_id).first()
+    if not user:
+        return message('No user found.')
+    db.session.delete(user)
+    db.session.commit()
+    return message('The user has been deleted')
+
+
+@app.post('/login')
+def login():
+    auth = request.
