@@ -73,6 +73,7 @@ def create():
         return 'Database Error'
 
 
+# GET ALL USERS
 @app.get('/user')
 @token_required
 def get_all_users(current_user):
@@ -80,9 +81,10 @@ def get_all_users(current_user):
     output = []
     for user in users:
         output.append(user.to_dict())
-    return jsonify({'users': output})
+    return jsonify({'current user': current_user.to_dict(), 'users': output})
 
 
+# GET 1 USER
 @app.get('/user/<public_id>')
 def get_one_user(public_id):
     user = User.query.filter_by(public_id=public_id).first()
