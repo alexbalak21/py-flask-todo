@@ -1,0 +1,20 @@
+POST http://127.0.0.1:5000/user
+content-type: application/json
+
+{
+  "name": "LaraCroft",
+  "password": "password123"
+}
+
+### GET ALL USERS
+GET http://127.0.0.1:5000/user
+
+###
+
+GET http://127.0.0.1:5000/user/2b771401-1622-45af-8f4d-93b14a025c75
+
+### PROMOTE USER TO ADMIN
+PUT  http://127.0.0.1:5000/user/2b771401-1622-45af-8f4d-93b14a025c75
+
+### DELETE USER
+DELETE  http://127.0.0.1:5000/user/24e01b3d-6327-4116-91f9-3530c0ab98c1
