@@ -1,3 +1,6 @@
+###CREATE DATABASE
+GET http://127.0.0.1:5000/create
+Z
 ###HOME
 GET http://127.0.0.1:5000/
 
@@ -6,8 +9,8 @@ POST http://127.0.0.1:5000/user
 content-type: application/json
 
 {
-  "name": "LaraCroft",
-  "password": "password123"
+  "name": "max",
+  "password": "Azerty123*"
 }
 
 ### LOGIN
@@ -15,21 +18,46 @@ POST http://127.0.0.1:5000/login
 content-type: application/json
 
 {
-  "name": "LaraCroft",
-  "password": "password123"
+  "name": "max",
+  "password": "Azerty123*"
 }
 
 
 ### GET ALL USERS
 GET http://127.0.0.1:5000/user
-x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNfaWQiOiIyYjc3MTQwMS0xNjIyLTQ1YWYtOGY0ZC05M2IxNGEwMjVjNzUiLCJleHAiOjE2ODYwODgwNzl9.xgRICCDLpmI3l1wUL8SYeJUk5vQC6LnYj1K5LZ1BuHo
+x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNfaWQiOiI0MGY5N2M4Yy0zNmZmLTQ4YWMtYWU5ZC1mZTY0NzUxNGI5ZWYiLCJleHAiOjE2ODYxNDIzMzd9.8D79qH8hqD2SASkCMUOOju63yFPX8Ze0YI-V5ENW0Dg
 
-###
 
+### GET 1 USER
 GET http://127.0.0.1:5000/user/2b771401-1622-45af-8f4d-93b14a025c75
 
+
+
+###TODOS
+
+### POST TODO
+POST http://127.0.0.1:5000/todo
+x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNfaWQiOiI5ZGNkYzVjZS0wNzNiLTRjYjItOWI5NC0zMWE2NzZlOGE0NTMiLCJleHAiOjE2ODYxNDMxMzR9.uX-S5sFwZzJlNzrVjxh79PEcp_tyiGlmvBdDlERD8ak
+content-type: application/json
+
+{
+  "text": "other user todo"
+}
+
+###GET ALL TODOS
+GET http://127.0.0.1:5000/todo
+x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNfaWQiOiI5ZGNkYzVjZS0wNzNiLTRjYjItOWI5NC0zMWE2NzZlOGE0NTMiLCJleHAiOjE2ODYxNDMxMzR9.uX-S5sFwZzJlNzrVjxh79PEcp_tyiGlmvBdDlERD8ak
+
+
+###DELETE TODO
+DELETE http://127.0.0.1:5000/todo/1
+x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNfaWQiOiI0MGY5N2M4Yy0zNmZmLTQ4YWMtYWU5ZC1mZTY0NzUxNGI5ZWYiLCJleHAiOjE2ODYxNDIzMzd9.8D79qH8hqD2SASkCMUOOju63yFPX8Ze0YI-V5ENW0Dg
+
+
+
 ### PROMOTE USER TO ADMIN
-PUT  http://127.0.0.1:5000/user/2b771401-1622-45af-8f4d-93b14a025c75
+PUT  http://127.0.0.1:5000/user/c9c880ea-2620-4293-b522-f7b8a0c6937b
 
 ### DELETE USER
-DELETE  http://127.0.0.1:5000/user/ee1252a4-3d2b-4027-b914-53778896c580
+DELETE  http://127.0.0.1:5000/user/c8ee6a6d-c709-4daf-a618-9a1ddba9ef02
+x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNfaWQiOiI0MGY5N2M4Yy0zNmZmLTQ4YWMtYWU5ZC1mZTY0NzUxNGI5ZWYiLCJleHAiOjE2ODYxNDIzMzd9.8D79qH8hqD2SASkCMUOOju63yFPX8Ze0YI-V5ENW0Dg

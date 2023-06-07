@@ -48,7 +48,7 @@ class User(db.Model):
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(255))
-    complete = db.Column(db.Boolean)
+    complete = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer)
 
     def to_dict(self) -> dict:
@@ -93,6 +93,7 @@ def get_one_user(public_id):
     return jsonify(user.to_dict())
 
 
+# CREATE USE
 @app.post('/user')
 def create_user():
     data = request.get_json()
@@ -104,6 +105,7 @@ def create_user():
     return message('new user crated'), 201
 
 
+# PROMOTE USER
 @app.put('/user/<public_id>')
 def promote_user(public_id):
     user = User.query.filter_by(public_id=public_id).first()
@@ -114,9 +116,11 @@ def promote_user(public_id):
     return message('User has been promoted.'), 202
 
 
-@app.delete('/user/<public_id>')
-def delete_user(public_id):
-    user = User.query.filter_by(public_id=public_id).first()
+# DELETE USER
+@app.delete('/user/')
+@token_required
+def delete_user(current_user):
+    user = User.query.filter_by(public_id=current_user.public_id).first()
     if not user:
         return message('No user found.')
     db.session.delete(user)
@@ -124,6 +128,7 @@ def delete_user(public_id):
     return message('The user has been deleted'), 202
 
 
+# LOGIN
 @app.post('/login')
 def login():
     data = request.get_json()
@@ -137,3 +142,35 @@ def login():
         ) + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm="HS256")
         return jsonify({'token': token}), 202
     return message('Password incorrect'), 401
+
+
+# POST todo
+@app.post('/todo')
+@token_required
+def create_todo(current_user):
+    data = request.get_json()
+    if not data['text']:
+        return message('Bad data submited')
+    new_todo = Todo(text=data['text'], user_id=current_user.id)
+    db.session.add(new_todo)
+    db.session.commit()
+    return message('Todo created'), 201
+
+
+@app.get('/todo')
+@token_required
+def get_all_todos(current_user):
+    todos = Todo.query.filter_by(user_id=current_user.id).all()
+    output = []
+    for todo in todos:
+        output.append(todo.to_dict())
+    return jsonify(output)
+
+
+@app.delete('/todo/<id>')
+@token_required
+def delete_todo(current_user, id):
+    todo = Todo.query.filter_by(user_id=current_user.id, id=id).first()
+    db.session.delete(todo)
+    db.session.commit()
+    return message('Todo deleted'), 202
